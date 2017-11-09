@@ -23,5 +23,11 @@
         <item name="android:textColor">#ffffff</item>
     </style>
 
+    <style name="EyeTextStyle" >
+        <item name="android:textSize">50sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#05b32b</item>
+    </style>
+
 
 </resources>

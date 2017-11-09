@@ -40,65 +40,9 @@ public class ChattingActivity extends AppCompatActivity{
         Intent intent=this.getIntent();
         device=intent.getParcelableExtra("device");
 
-        handler = new Handler(){
-            public void handleMessage(Message message) {
-                String msg=message.getData().getString("msg");
-                txt_area.append(msg+"\n");
-
-                txt_area.invalidate();
-            }
-        };
-
-        connect();
     }
 
-
-    /*---------------------------------------------------------
-       접속한다
-    ---------------------------------------------------------*/
-    public void connect(){
-
-        try {
-            socket=device.createInsecureRfcommSocketToServiceRecord(java.util.UUID.fromString(UUID));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        connectThread = new Thread(){
-            @Override
-            public void run() {
-                try {
-                    socket.connect();
-
-                    Message message = new Message();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("msg","접속 성공");
-                    message.setData(bundle);
-                    handler.sendMessage(message);
-
-                    //데이터 주고 받는 쓰레드 작동 시작
-                    dataThread = new DataThread(ChattingActivity.this, socket);
-                    dataThread.start();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-
-                    Message message = new Message();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("msg","접속 실패");
-                    message.setData(bundle);
-                    handler.sendMessage(message);
-
-                }
-
-            }
-        };
-
-        connectThread.start();
-
-    }
-
-    public void send(View view){
+     public void send(View view){
         String msg=edit_input.getText().toString();
         dataThread.send(msg);
         edit_input.setText("");

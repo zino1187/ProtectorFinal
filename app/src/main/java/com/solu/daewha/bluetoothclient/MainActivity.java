@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.os.Message;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -20,7 +21,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -36,6 +39,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public static final int REQUEST_ACTIVE=1;   //활성화
     public static final int REQUEST_AUTH=2;     //권한허용
 
+    String UUID="00001101-0000-1000-8000-00805f9b34fb";
+    Thread connectThread;
+    public static BluetoothSocket socket;
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -44,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         myListAdapter = new MyListAdapter(this);
         listView.setAdapter(myListAdapter);
         listView.setOnItemClickListener(this);
+
+
 
         checkSupportBluetooth();
         requestActive();
@@ -117,9 +127,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void goDetail(BluetoothDevice device){
         bluetoothAdapter.cancelDiscovery();
 
-        Intent intent = new Intent(this, ChattingActivity.class);
-        intent.putExtra("device", (Parcelable) device);
-        startActivity(intent);
+        connect();
     }
 
 
@@ -154,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
 
+
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
@@ -166,4 +175,36 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
 
+    /*---------------------------------------------------------
+       접속한다
+    ---------------------------------------------------------*/
+    public void connect(){
+
+        try {
+            socket=device.createInsecureRfcommSocketToServiceRecord(java.util.UUID.fromString(UUID));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        connectThread = new Thread(){
+            @Override
+            public void run() {
+                try {
+                    socket.connect();
+
+                    //데이터 주고 받는 쓰레드 작동 시작
+                    Log.d(TAG, "접속성공");
+
+                    Intent intent  = new Intent(MainActivity.this, ControlActivity.class);
+                    startActivity(intent);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "접속실패");
+
+                }
+            }
+        };
+        connectThread.start();
+    }
 }

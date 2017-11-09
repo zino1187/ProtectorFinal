@@ -18,14 +18,14 @@ import java.io.OutputStreamWriter;
 public class DataThread extends Thread{
     String TAG=this.getClass().getName();
 
-    ChattingActivity chattingActivity;
+    ControlActivity controlActivity;
     BluetoothSocket socket;
     BufferedReader buffr;
     BufferedWriter buffw;
     boolean flag=true;
 
-    public DataThread(ChattingActivity chattingActivity,BluetoothSocket socket) {
-        this.chattingActivity=chattingActivity;
+    public DataThread(ControlActivity controlActivity,BluetoothSocket socket) {
+        this.controlActivity=controlActivity;
         this.socket = socket;
         try {
             buffr = new BufferedReader(new InputStreamReader(socket.getInputStream(),"utf-8"));
@@ -47,8 +47,8 @@ public class DataThread extends Thread{
             Bundle bundle = new Bundle();
             bundle.putString("msg", msg);
             message.setData(bundle);
-            chattingActivity.handler.sendMessage(message);
 
+            controlActivity.handler.sendMessage(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
